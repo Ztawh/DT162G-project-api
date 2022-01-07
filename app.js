@@ -1,4 +1,7 @@
-/* Skapat av Amanda Hwatz Björkholm 
+/* 
+Skapat av Amanda Hwatz Björkholm 
+Proejktarbete - DT162G - blogg
+https://whispering-everglades-05958.herokuapp.com/
 */
 
 // MongoDb
@@ -9,10 +12,10 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost/bloggDB', { useNewUrlParser: true });
+//mongoose.connect('mongodb://localhost/bloggDB', { useNewUrlParser: true });
 
 // Koppla upp till databas på Mlab
-// mongoose.connect("mongodb+srv://admin:nichof-6vewpo-sixbaW@cluster0.1oheg.mongodb.net/myCourses?retryWrites=true&w=majority", {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect("mongodb+srv://admin:nichof-6vewpo-sixbaW@cluster0.1oheg.mongodb.net/bloggDB?retryWrites=true&w=majority", {useNewUrlParser: true, useUnifiedTopology: true});
 
 const db = mongoose.connection;
 db.on("error", (error) => console.error(error));
@@ -21,8 +24,8 @@ db.once("open", () => console.log("Connected!"));
 
 // Sätter att inkommande data är json-objekt
 app.use(express.json());
-//const port = process.env.PORT;
-const port = 3000;
+const port = process.env.PORT;
+//const port = 3000;
 app.use(express.static(__dirname + '/posts'));
 app.listen(port, () => console.log(`Server started`));
 
@@ -35,20 +38,20 @@ app.use((req, res, next) => {
 });
 
 // Schema
-const courseSchema = new mongoose.Schema({
+const postSchema = new mongoose.Schema({
     title: String,
     content: String,
     date: {type: Date, default: Date.now}
 });
 
 // Model
-const Post = mongoose.model('posts', courseSchema);
+const Post = mongoose.model('posts', postSchema);
 
 // GET inlägg
 app.get('/posts', async (req, res) => {
     try {
         // Hämta alla inlägg
-        const posts = await Post.find();
+        const posts = await Post.find().sort({date: -1});
         res.json(posts);
     } catch (err){
         res.status(500).json({message: err.message});
