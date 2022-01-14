@@ -12,15 +12,13 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 
-//mongoose.connect('mongodb://localhost/bloggDB', { useNewUrlParser: true });
-
 // Koppla upp till databas på Mlab
-mongoose.connect("mongodb+srv://admin:nichof-6vewpo-sixbaW@cluster0.1oheg.mongodb.net/bloggDB?retryWrites=true&w=majority", {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect("mongodb+srv://admin:nichof-6vewpo-sixbaW@cluster0.1oheg.mongodb.net/bloggDB?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true });
+//mongoose.connect('mongodb://localhost/bloggDB', { useNewUrlParser: true });
 
 const db = mongoose.connection;
 db.on("error", (error) => console.error(error));
 db.once("open", () => console.log("Connected!"));
-
 
 // Sätter att inkommande data är json-objekt
 app.use(express.json());
@@ -41,45 +39,45 @@ app.use((req, res, next) => {
 const postSchema = new mongoose.Schema({
     title: String,
     content: String,
-    date: {type: Date, default: Date.now}
+    date: { type: Date, default: Date.now }
 });
 
 // Model
 const Post = mongoose.model('posts', postSchema);
 
 // GET inlägg
-app.get('/posts', async (req, res) => {
+app.get('/posts', async(req, res) => {
     try {
         // Hämta alla inlägg
-        const posts = await Post.find().sort({date: -1});
+        const posts = await Post.find().sort({ date: -1 });
         res.json(posts);
-    } catch (err){
-        res.status(500).json({message: err.message});
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 });
 
 // GET med ID
-app.get("/posts/:id", async (req, res) => {
+app.get("/posts/:id", async(req, res) => {
     let id = req.params.id;
-  
+
     try {
         // Hämta kurs med specifikt _id
         res.json(await Post.findById(id));
     } catch {
-        res.json({message: "Couldn't find post"});
+        res.json({ message: "Couldn't find post" });
     }
 });
 
 // DELETE
-app.delete("/posts/:id", async (req, res) => {
+app.delete("/posts/:id", async(req, res) => {
     let id = req.params.id;
 
     try {
         // Ta bort kurs med visst _id
         await Post.findByIdAndDelete(id);
-        res.json({message: "Post deleted"});
+        res.json({ message: "Post deleted" });
     } catch {
-        res.json({message: "Couldn't find post"});
+        res.json({ message: "Couldn't find post" });
     }
 });
 
@@ -89,26 +87,25 @@ app.post("/posts", (req, res) => {
         // Sätt inskickad data till model och spara till databasen
         let newPost = new Post(req.body);
         newPost.save();
-        res.json({message: "Post added"});
+        res.json({ message: "Post added" });
     } catch {
-        res.json({message: "Couldn't add post"})
+        res.json({ message: "Couldn't add post" })
     }
 });
 
 // PUT
-app.put("/posts/:id", async (req, res) => {
+app.put("/posts/:id", async(req, res) => {
     // Sätt id till det inlägg som ska uppdateras
     // Sätt ny data
     let id = req.params.id;
-    const filter = {_id: id};
+    const filter = { _id: id };
     const updatePost = req.body;
-    
 
     try {
         // Redigera kurs med visst _id
         await Post.findByIdAndUpdate(filter, updatePost);
-        res.json({message: "Post updated"});
+        res.json({ message: "Post updated" });
     } catch {
-        res.json({message: "Couldn't find post"});
+        res.json({ message: "Couldn't find post" });
     }
 });
